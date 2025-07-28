@@ -5,8 +5,6 @@ import Navbar from "./components/Navbar";
 import { ItineraryOverview } from "./components/ItineraryOverview";
 import { TripItemsList } from "./components/TripItemsList";
 import HeaderBanner from "./components/HeaderBanner";
-import TripDetailsCard from "./components/cards/TripDetailsCard";
-import ActionCard from "./components/cards/ActionCard";
 
 export default function ItineraryPage() {
   return (
@@ -28,28 +26,6 @@ export default function ItineraryPage() {
           {/* Itinerary Overview Section */}
           <div className="min-h-screen bg-gray-50 pb-10">
             <HeaderBanner />
-            <div className="container mx-auto px-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                <ActionCard
-                  title="Activities"
-                  description="Build, personalize, and optimize your itineraries with our trip planner."
-                  buttonText="Add Activities"
-                  buttonColorClass="bg-blue-900" // Dark blue as per image
-                />
-                <ActionCard
-                  title="Hotels"
-                  description="Build, personalize, and optimize your itineraries with our trip planner."
-                  buttonText="Add Hotels"
-                  buttonColorClass="bg-blue-700" // A bit lighter blue
-                />
-                <ActionCard
-                  title="Flights"
-                  description="Build, personalize, and optimize your itineraries with our trip planner."
-                  buttonText="Add Flights"
-                  buttonColorClass="bg-blue-500" // Bright blue
-                />
-              </div>
-            </div>
           </div>
           <ItineraryOverview />
 
