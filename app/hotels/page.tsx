@@ -97,8 +97,8 @@ const HotelsPage = () => {
   const getHotels = async (): Promise<void> => {
     setLoading(true);
     const today = new Date();
-    const formatDate = (date: Date): string =>
-      today.toISOString().split("T")[0];
+    // FIX: Correctly format the passed date, not always 'today'
+    const formatDate = (date: Date): string => date.toISOString().split("T")[0];
 
     const arrivalDate = formatDate(today);
     const departureDate = formatDate(

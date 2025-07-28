@@ -546,7 +546,6 @@ export default function FlightSearchPage() {
     });
   };
 
-  // API call to RapidAPI
   const searchFlights = async () => {
     setLoading(true);
     setError(null);
@@ -578,7 +577,6 @@ export default function FlightSearchPage() {
         setFlights(transformedFlights);
         setAggregation(result.data.aggregation);
 
-        // Update price range based on API data
         if (result.data.aggregation?.budget) {
           const minPrice =
             result.data.aggregation.budget.min.units +
