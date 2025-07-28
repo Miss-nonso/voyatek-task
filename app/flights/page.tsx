@@ -559,7 +559,7 @@ export default function FlightSearchPage() {
     const options: RequestInit = {
       method: "GET",
       headers: {
-        "x-rapidapi-key": "e1b944ef30mshb8bc7aefc350ca8p1bce8ajsnf571d3ea61ec",
+        "x-rapidapi-key": "f1ff9c3f3amshce5b4e8bf88f2f9p1f383djsn2c81cc896165",
         "x-rapidapi-host": "booking-com15.p.rapidapi.com"
       }
     };

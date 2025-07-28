@@ -10,14 +10,23 @@ import {
   Calendar,
   ChevronRight
 } from "lucide-react";
-import HotelPageCard from "app/components/cards/HotelPageCard";
+import HotelPageCard from "app/components/cards/HotelPageCard"; // Assuming this path is correct
 import {
   Hotel,
-  FiltersState,
   BookingComHotelApiItem,
   BookingComHotelApiData,
   BookingComApiResponse
-} from "../../lib/interface";
+} from "../../lib/interface"; // Assuming these interfaces are correctly defined here
+
+// Define FiltersState specifically for HotelsPage, if it's not already in lib/interface
+// or ensure the one in lib/interface is suitable for hotels only.
+// If lib/interface is shared, you might need to adjust it or create a specific one here.
+interface FiltersState {
+  priceRange: [number, number];
+  rating: number;
+  facilities: string[];
+  roomType: string;
+}
 
 const HotelsPage = () => {
   const [hotels, setHotels] = useState<Hotel[]>([]);
@@ -40,10 +49,8 @@ const HotelsPage = () => {
   const [filters, setFilters] = useState<FiltersState>({
     priceRange: [0, 500000],
     rating: 0,
-    facilities: [""],
-    roomType: "",
-    duration: "",
-    category: ""
+    facilities: [], // Changed from [""] to [] for proper filtering
+    roomType: ""
   });
 
   const transformApiDataToHotel = (
@@ -90,7 +97,8 @@ const HotelsPage = () => {
   const getHotels = async (): Promise<void> => {
     setLoading(true);
     const today = new Date();
-    const formatDate = (date: Date): string => date.toISOString().split("T")[0];
+    const formatDate = (date: Date): string =>
+      today.toISOString().split("T")[0];
 
     const arrivalDate = formatDate(today);
     const departureDate = formatDate(
@@ -102,7 +110,7 @@ const HotelsPage = () => {
     const options: RequestInit = {
       method: "GET",
       headers: {
-        "x-rapidapi-key": "e1b944ef30mshb8bc7aefc350ca8p1bce8ajsnf571d3ea61ec",
+        "x-rapidapi-key": "f1ff9c3f3amshce5b4e8bf88f2f9p1f383djsn2c81cc896165",
         "x-rapidapi-host": "booking-com15.p.rapidapi.com"
       }
     };
@@ -144,12 +152,13 @@ const HotelsPage = () => {
       if (error instanceof Error) {
         console.error("Error message:", error.message);
       }
-      setHotels([]);
+      setHotels([]); // Ensure hotels state is reset on error
     } finally {
       setLoading(false);
     }
   };
 
+  // This useEffect will now run once on component mount and whenever searchQuery changes.
   useEffect(() => {
     getHotels();
   }, [searchQuery]);
