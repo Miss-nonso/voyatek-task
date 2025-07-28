@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import {
   MapPin,
@@ -6,34 +8,79 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  Eye,
-  MoreHorizontal,
+  Eye, // Not used in provided snippet, but keeping for completeness if intended
+  MoreHorizontal, // Not used in provided snippet, but keeping for completeness if intended
   Search,
   Filter,
-  SlidersHorizontal,
+  SlidersHorizontal, // Not used in provided snippet, but keeping for completeness if intended
   Grid3X3,
   List,
   Plus,
   Check,
   Calendar,
-  Tag,
+  Tag, // Not used in provided snippet, but keeping for completeness if intended
   Heart,
   Share2,
-  ChevronDown,
+  ChevronDown, // Not used in provided snippet, but keeping for completeness if intended
   Compass,
   Camera,
-  Mountain,
+  Mountain, // Not used in provided snippet, but keeping for completeness if intended
   Building,
   Utensils,
   Music,
-  ShoppingBag,
+  ShoppingBag, // Not used in provided snippet, but keeping for completeness if intended
   Waves
 } from "lucide-react";
 
+// Define the Activity interface based on your sample data
+interface Activity {
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  images: string[];
+  rating: number;
+  reviews: number;
+  duration: string;
+  price: number;
+  time: string;
+  included: string;
+  dayNumber: number;
+}
+
+// Define the props for the ActivitiesCard component
+interface ActivitiesCardProps {
+  activity: Activity;
+  onClose?: () => void; // Optional if not always used
+  onDirections: () => void;
+  onActivityDetails: () => void;
+  onPriceDetails: () => void;
+  onEditDetails: () => void;
+  onSeeMore: () => void;
+  onAddToItinerary: (activity: Activity) => void;
+  isAddedToItinerary?: boolean;
+  viewMode?: "grid" | "list";
+}
+
+// Define the interface for category objects
+interface CategoryOption {
+  name: string;
+  label: string;
+  icon: React.ElementType; // Type for LucideReact icons
+}
+
+// Define the interface for filters state
+interface FiltersState {
+  priceRange: [number, number];
+  rating: number;
+  duration: string;
+  category: string;
+}
+
 // Enhanced ActivitiesCard component
-const ActivitiesCard = ({
+const ActivitiesCard: React.FC<ActivitiesCardProps> = ({
   activity,
-  onClose,
+  onClose, // Kept as optional, but if used, ensure it's called
   onDirections,
   onActivityDetails,
   onPriceDetails,
@@ -43,22 +90,22 @@ const ActivitiesCard = ({
   isAddedToItinerary = false,
   viewMode = "grid"
 }) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
 
-  const nextImage = () => {
+  const nextImage = (): void => {
     setCurrentImageIndex((prev) =>
       prev === activity.images.length - 1 ? 0 : prev + 1
     );
   };
 
-  const prevImage = () => {
+  const prevImage = (): void => {
     setCurrentImageIndex((prev) =>
       prev === 0 ? activity.images.length - 1 : prev - 1
     );
   };
 
-  const formatPrice = (price) => {
+  const formatPrice = (price: number): string => {
     return `₦ ${price.toLocaleString("en-NG", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
@@ -75,6 +122,12 @@ const ActivitiesCard = ({
               src={activity.images[currentImageIndex]}
               alt={activity.name}
               className="w-full h-full object-cover"
+              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                // Optional: Provide a fallback image or hide broken image
+                e.currentTarget.src =
+                  "https://placehold.co/400x250/E0E0E0/666666?text=Image+Not+Found";
+                e.currentTarget.onerror = null; // Prevent infinite loop
+              }}
             />
 
             {/* Heart and Share buttons */}
@@ -179,7 +232,7 @@ const ActivitiesCard = ({
                 <div className="mb-4">
                   <div className="flex items-start text-sm text-gray-600">
                     <span className="font-medium mr-2 text-gray-500">
-                      What's included:
+                      What&apos;s included:
                     </span>
                     <div className="flex-1">
                       <span className="text-blue-500">{activity.included}</span>
@@ -265,6 +318,11 @@ const ActivitiesCard = ({
           src={activity.images[currentImageIndex]}
           alt={activity.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+            e.currentTarget.src =
+              "https://placehold.co/400x250/E0E0E0/666666?text=Image+Not+Found";
+            e.currentTarget.onerror = null;
+          }}
         />
 
         {/* Heart and Share buttons */}
@@ -349,7 +407,7 @@ const ActivitiesCard = ({
 
         {/* What's Included */}
         <div className="mb-4">
-          <p className="text-xs text-gray-500 mb-1">What's included:</p>
+          <p className="text-xs text-gray-500 mb-1">What&apos;s included:</p>
           <p className="text-sm text-blue-500 line-clamp-1">
             {activity.included}
           </p>
@@ -387,14 +445,14 @@ const ActivitiesCard = ({
 
 // Main Activities Page Component
 const ActivitiesPage = () => {
-  const [activities, setActivities] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState("grid");
-  const [showFilters, setShowFilters] = useState(false);
-  const [itinerary, setItinerary] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [filters, setFilters] = useState({
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [showFilters, setShowFilters] = useState<boolean>(false);
+  const [itinerary, setItinerary] = useState<Activity[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [filters, setFilters] = useState<FiltersState>({
     priceRange: [0, 500000],
     rating: 0,
     duration: "",
@@ -402,7 +460,7 @@ const ActivitiesPage = () => {
   });
 
   // Sample activities data - Replace with API call
-  const sampleActivities = [
+  const sampleActivities: Activity[] = [
     {
       id: 1,
       name: "The Museum of Modern Art",
@@ -513,7 +571,7 @@ const ActivitiesPage = () => {
     }
   ];
 
-  const categories = [
+  const categories: CategoryOption[] = [
     { name: "all", label: "All Activities", icon: Compass },
     { name: "Museums", label: "Museums", icon: Building },
     { name: "Entertainment", label: "Entertainment", icon: Music },
@@ -531,13 +589,13 @@ const ActivitiesPage = () => {
     }, 1000);
   }, []);
 
-  const handleAddToItinerary = (activity) => {
+  const handleAddToItinerary = (activity: Activity): void => {
     if (!itinerary.find((item) => item.id === activity.id)) {
-      setItinerary([...itinerary, activity]);
+      setItinerary((prevItinerary) => [...prevItinerary, activity]);
     }
   };
 
-  const filteredActivities = activities.filter((activity) => {
+  const filteredActivities: Activity[] = activities.filter((activity) => {
     const matchesSearch =
       activity.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       activity.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -593,7 +651,9 @@ const ActivitiesPage = () => {
                   type="text"
                   placeholder="Search activities, attractions..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setSearchQuery(e.target.value)
+                  }
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 />
               </div>
@@ -742,6 +802,19 @@ const ActivitiesPage = () => {
             <p className="text-gray-600">
               Try adjusting your search or filter criteria
             </p>
+            <button
+              onClick={() =>
+                setFilters({
+                  priceRange: [0, 500000],
+                  rating: 0,
+                  duration: "",
+                  category: ""
+                })
+              }
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Clear all filters
+            </button>
           </div>
         )}
       </div>

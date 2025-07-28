@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   MapPin,
   Star,
@@ -11,7 +14,32 @@ import {
   ChevronLeft
 } from "lucide-react";
 
-const HotelCard = ({
+interface Hotel {
+  name: string;
+  address: string;
+  rating: number;
+  reviews: number;
+  roomType: string;
+  facilities: string[];
+  images: string[];
+  price: number;
+  totalPrice: number;
+  nights: number;
+  rooms: number;
+  checkIn: string;
+  checkOut: string;
+}
+
+interface HotelCardProps {
+  hotel?: Hotel;
+  onClose?: () => void;
+  onShowMap: () => void;
+  onHotelDetails: () => void;
+  onPriceDetails: () => void;
+  onEditDetails: () => void;
+}
+
+const HotelCard: React.FC<HotelCardProps> = ({
   hotel = {
     name: "Riviera Resort, Lekki",
     address:
@@ -38,36 +66,41 @@ const HotelCard = ({
   onPriceDetails,
   onEditDetails
 }) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
-  const nextImage = () => {
+  const nextImage = (): void => {
     setCurrentImageIndex((prev) =>
       prev === hotel.images.length - 1 ? 0 : prev + 1
     );
   };
 
-  const prevImage = () => {
+  const prevImage = (): void => {
     setCurrentImageIndex((prev) =>
       prev === 0 ? hotel.images.length - 1 : prev - 1
     );
   };
 
-  const formatPrice = (price) => {
+  const formatPrice = (price: number): string => {
     return `₦ ${price.toLocaleString()}`;
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm max-w-full">
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden my-6 shadow-sm max-w-full">
       <div className="flex flex-col lg:flex-row">
-        {/* Image Section */}
         <div className="relative w-full lg:w-80 h-64 lg:h-auto flex-shrink-0">
-          <img
+          <Image
+            width={200}
+            height={300}
             src={hotel.images[currentImageIndex]}
             alt={hotel.name}
             className="w-full h-full object-cover"
+            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+              e.currentTarget.src =
+                "https://placehold.co/400x250/E0E0E0/666666?text=Image+Not+Found";
+              e.currentTarget.onerror = null;
+            }}
           />
 
-          {/* Image Navigation */}
           {hotel.images.length > 1 && (
             <>
               <button
@@ -83,7 +116,6 @@ const HotelCard = ({
                 <ChevronRight className="w-4 h-4 text-gray-600" />
               </button>
 
-              {/* Image Indicators */}
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
                 {hotel.images.map((_, index) => (
                   <div
@@ -98,14 +130,11 @@ const HotelCard = ({
           )}
         </div>
 
-        {/* Content Section */}
         <div className="flex-1 p-4 lg:p-6">
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start h-full">
-            {/* Left Content */}
             <div className="flex-1 lg:pr-6">
-              {/* Header */}
               <div className="flex items-start justify-between mb-2">
-                <h2 className="text-xl lg:text-2xl font-semibold text-gray-900 leading-tight">
+                <h2 className="text-xl lg:text-2xl font-semibold text-gray-900 leading-tight pr-4">
                   {hotel.name}
                 </h2>
                 {onClose && (
@@ -118,12 +147,10 @@ const HotelCard = ({
                 )}
               </div>
 
-              {/* Address */}
               <p className="text-sm text-gray-600 mb-3 leading-relaxed">
                 {hotel.address}
               </p>
 
-              {/* Rating and Room Info Row */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
                 <button
                   onClick={onShowMap}
@@ -147,7 +174,6 @@ const HotelCard = ({
                 </div>
               </div>
 
-              {/* Facilities */}
               <div className="mb-4">
                 <div className="flex items-center text-sm text-gray-600">
                   <span className="font-medium mr-2">Facilities:</span>
@@ -168,7 +194,6 @@ const HotelCard = ({
                 </div>
               </div>
 
-              {/* Check-in/Check-out */}
               <div className="flex flex-col sm:flex-row gap-4 mb-4">
                 <div className="flex items-center text-sm text-gray-600">
                   <Calendar className="w-4 h-4 mr-2" />
@@ -180,7 +205,6 @@ const HotelCard = ({
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex flex-wrap gap-2 lg:gap-4">
                 <button
                   onClick={onHotelDetails}
@@ -197,10 +221,8 @@ const HotelCard = ({
               </div>
             </div>
 
-            {/* Right Content - Price Section */}
             <div className="mt-4 lg:mt-0 lg:min-w-0 lg:flex-shrink-0">
               <div className="flex flex-row lg:flex-col justify-between lg:items-end lg:text-right">
-                {/* Close button for desktop */}
                 {onClose && (
                   <button
                     onClick={onClose}
@@ -210,10 +232,9 @@ const HotelCard = ({
                   </button>
                 )}
 
-                {/* Price */}
                 <div className="lg:mb-4">
                   <div className="text-right">
-                    <div className="text-2xl lg:text-3xl font-bold text-gray-900">
+                    <div className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
                       {formatPrice(hotel.price)}
                     </div>
                     <div className="text-sm text-gray-500">
@@ -225,7 +246,6 @@ const HotelCard = ({
                   </div>
                 </div>
 
-                {/* Edit Details Button */}
                 <div className="flex justify-end">
                   <button
                     onClick={onEditDetails}
@@ -243,9 +263,8 @@ const HotelCard = ({
   );
 };
 
-// Demo usage
 export default function HotelCardDemo() {
-  const [showCard, setShowCard] = useState(true);
+  const [showCard, setShowCard] = useState<boolean>(true);
 
   if (!showCard) {
     return (
@@ -271,11 +290,11 @@ export default function HotelCardDemo() {
         </div>
 
         <HotelCard
-          onClose={() => setShowCard(false)}
-          onShowMap={() => alert("Show in map clicked")}
-          onHotelDetails={() => alert("Hotel details clicked")}
-          onPriceDetails={() => alert("Price details clicked")}
-          onEditDetails={() => alert("Edit details clicked")}
+          onClose={() => console.log("Close clicked")}
+          onShowMap={() => console.log("Show in map clicked")}
+          onHotelDetails={() => console.log("Hotel details clicked")}
+          onPriceDetails={() => console.log("Price details clicked")}
+          onEditDetails={() => console.log("Edit details clicked")}
         />
       </div>
     </div>

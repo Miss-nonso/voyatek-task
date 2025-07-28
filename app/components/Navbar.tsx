@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { JSX, useState } from "react";
+import Image from "next/image";
 import {
   Search,
   Home,
@@ -14,21 +15,28 @@ import {
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
+interface NavItemProps {
+  icon: JSX.ElementType;
+  label: string;
+  active: boolean;
+  hasNotification: boolean;
+}
+
 const Navbar = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const navItems = [
     { icon: Home, label: "Home", active: true },
-    { icon: BarChart3, label: "Dashboard" },
-    { icon: Wallet, label: "Wallet" },
-    { icon: MapPin, label: "Plan a trip" },
-    { icon: Heart, label: "Commission for life" }
+    { icon: BarChart3, label: "Dashboard", active: false },
+    { icon: Wallet, label: "Wallet", active: false },
+    { icon: MapPin, label: "Plan a trip", active: false },
+    { icon: Heart, label: "Commission for life", active: false }
   ];
 
   const rightItems = [
     { icon: Bell, label: "Notification", hasNotification: true },
-    { icon: ShoppingCart, label: "Carts" },
-    { icon: Plus, label: "Create" }
+    { icon: ShoppingCart, label: "Carts", hasNotification: false },
+    { icon: Plus, label: "Create", hasNotification: false }
   ];
 
   const NavItem = ({
@@ -36,7 +44,7 @@ const Navbar = () => {
     label,
     active = false,
     hasNotification = false
-  }) => (
+  }: NavItemProps) => (
     <div
       className={`flex flex-col items-center gap-1 px-3 py-2 cursor-pointer transition-colors hover:text-blue-600 ${
         active ? "text-blue-600" : "text-gray-600"
@@ -57,7 +65,7 @@ const Navbar = () => {
     label,
     active = false,
     hasNotification = false
-  }) => (
+  }: NavItemProps) => (
     <div
       className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-gray-50 ${
         active ? "text-blue-600 bg-blue-50" : "text-gray-700"
@@ -111,6 +119,7 @@ const Navbar = () => {
               icon={item.icon}
               label={item.label}
               active={item.active}
+              hasNotification={false}
             />
           ))}
         </div>
@@ -130,13 +139,16 @@ const Navbar = () => {
                 icon={item.icon}
                 label={item.label}
                 hasNotification={item.hasNotification}
+                active={false}
               />
             ))}
           </div>
 
           {/* Profile */}
           <div className="hidden md:flex items-center gap-2 cursor-pointer">
-            <img
+            <Image
+              width={200}
+              height={200}
               src="/api/placeholder/32/32"
               alt="Profile"
               className="w-8 h-8 rounded-full object-cover"
@@ -193,6 +205,7 @@ const Navbar = () => {
                         icon={item.icon}
                         label={item.label}
                         active={item.active}
+                        hasNotification={false}
                       />
                     ))}
                   </div>
@@ -204,6 +217,7 @@ const Navbar = () => {
                         icon={item.icon}
                         label={item.label}
                         hasNotification={item.hasNotification}
+                        active={false}
                       />
                     ))}
                   </div>

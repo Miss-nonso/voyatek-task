@@ -41,7 +41,7 @@ export const TripItemsList = () => {
   return (
     <div className="p-6 grid gap-8">
       <section>
-        <h3 className="text-lg font-semibold mb-2">Flights</h3>
+        <h3 className="text-lg font-semibold mb-2 bg-white">Flights</h3>
         <div className="grid gap-4  w-full">
           <FlightCard {...flightData} />
           <FlightCard {...flightData} />
@@ -49,7 +49,7 @@ export const TripItemsList = () => {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold mb-2">Hotels</h3>
+        <h3 className="text-lg font-semibold mb-2 bg-white">Hotels</h3>
         <div className="grid gap-4">
           <HotelCardDemo />
           <HotelCardDemo />
@@ -57,10 +57,10 @@ export const TripItemsList = () => {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold mb-2">Activities</h3>
+        <h3 className="text-lg font-semibold mb-2 bg-white">Activities</h3>
         <div className="grid gap-4">
-          <ActivityCard {...mockActivitiesCardData} />
-          <ActivityCard {...mockActivitiesCardData} />
+          <ActivityCard />
+          <ActivityCard />
         </div>
       </section>
     </div>

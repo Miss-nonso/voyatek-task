@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Search,
   MapPin,
@@ -45,16 +46,16 @@ interface FlightInfo {
 
 interface AirlineData {
   name: string;
-  code: string; // IATA code (e.g., "6E")
-  logo: string; // URL for logo (e.g., "https://r-xx.bstatic.com/data/airlines_logo/6E.png")
-  iataCode?: string; // Used in aggregation.airlines
-  count?: number; // Used in aggregation.airlines
-  minPrice?: Price; // Used in aggregation.airlines
+  code: string;
+  logo: string;
+  iataCode?: string;
+  count?: number;
+  minPrice?: Price;
 }
 
 interface AirportInfo {
   type: string;
-  code: string; // IATA code
+  code: string;
   name: string;
   city: string;
   cityName: string;
@@ -64,27 +65,20 @@ interface AirportInfo {
 }
 
 interface FlightStop {
-  // Based on your API response, flightStops is an empty array for direct flights.
-  // If it contained data for stops, it would look like this:
   airportCode: string;
   arrivalTime: string;
   departureTime: string;
-  duration: number; // In seconds or minutes
-  // Add more properties if your API provides them for stops
+  duration: number;
 }
 
 interface Facility {
-  // Assuming facilities are simple strings or objects with a name/code
   name: string;
   code: string;
-  // Add more properties if your API provides them
 }
 
 interface Amenity {
-  // Assuming amenities are simple strings or objects with a name/code
   name: string;
   code: string;
-  // Add more properties if your API provides them
 }
 
 interface LuggageAllowance {
@@ -117,8 +111,8 @@ interface Leg {
   carriers: string[]; // Array of IATA codes
   carriersData: AirlineData[]; // Detailed airline info for carriers
   totalTime: number; // in seconds
-  flightStops: FlightStop[]; // Now typed
-  amenities: Amenity[]; // Now typed
+  flightStops: FlightStop[];
+  amenities: Amenity[];
 }
 
 interface Segment {
@@ -128,8 +122,8 @@ interface Segment {
   arrivalTime: string; // ISO string
   legs: Leg[];
   totalTime: number; // in seconds
-  travellerCheckedLuggage: TravellerLuggage[]; // Now typed
-  travellerCabinLuggage: TravellerLuggage[]; // Now typed
+  travellerCheckedLuggage: TravellerLuggage[];
+  travellerCabinLuggage: TravellerLuggage[];
   isAtolProtected: boolean;
   showWarningDestinationAirport: boolean;
   showWarningOriginAirport: boolean;
@@ -257,7 +251,7 @@ interface UnifiedPriceBreakdown {
   id: string;
   price: Price;
   items: PriceItem[];
-  addedItems: any[];
+  addedItems: string[];
 }
 
 interface FlightOfferApi {
@@ -283,21 +277,21 @@ interface FlightOfferApi {
   priceDisplayRequirements: string[];
   pointOfSale: string;
   tripType: string;
-  posMismatch: PosMismatch; // Now typed
-  includedProductsBySegment: IncludedProductsBySegmentItem[][]; // Now typed
-  includedProducts: IncludedProducts; // Now typed
-  extraProducts: ExtraProduct[]; // Now typed
-  offerExtras: OfferExtras; // Now typed
-  ancillaries: Ancillaries; // Now typed
-  appliedDiscounts: string[]; // Still `any[]` as no structure provided.
+  posMismatch: PosMismatch;
+  includedProductsBySegment: IncludedProductsBySegmentItem[][];
+  includedProducts: IncludedProducts;
+  extraProducts: ExtraProduct[];
+  offerExtras: OfferExtras;
+  ancillaries: Ancillaries;
+  appliedDiscounts: string[];
   offerKeyToHighlight: string;
-  extraProductDisplayRequirements: string; // Now typed as Record<string, any>
-  unifiedPriceBreakdown: UnifiedPriceBreakdown; // Now typed
-  perTravellerPriceDifferences: string[]; // Still `any[]` as no structure provided.
+  extraProductDisplayRequirements: string[];
+  unifiedPriceBreakdown: UnifiedPriceBreakdown;
+  perTravellerPriceDifferences: string[];
   durationInMinutes?: number;
   cabinClass?: string;
-  baggage?: Record<string, any>; // Assuming a generic object if not a specific structure
-  amenities?: Amenity[]; // Now typed
+  baggage?: string[];
+  amenities?: Amenity[];
 }
 
 interface StopAggregation {
@@ -354,18 +348,18 @@ interface Aggregation {
   filteredTotalCount: number;
   stops: StopAggregation[];
   airlines: AirlineData[];
-  departureIntervals: TimeInterval[]; // Now typed
-  flightTimes: FlightTimesAggregation; // Now typed
-  shortLayoverConnection: ShortLayoverConnection; // Now typed
+  departureIntervals: TimeInterval[];
+  flightTimes: FlightTimesAggregation;
+  shortLayoverConnection: ShortLayoverConnection;
   durationMin: number;
   durationMax: number;
   minPrice: Price;
   minRoundPrice: Price;
   minPriceFiltered: Price;
-  baggage: BaggageAggregationItem[]; // Now typed
+  baggage: BaggageAggregationItem[];
   budget: BudgetAggregation;
-  budgetPerAdult: BudgetPerAdultAggregation; // Now typed
-  duration: DurationAggregationItem[]; // Now typed
+  budgetPerAdult: BudgetPerAdultAggregation;
+  duration: DurationAggregationItem[];
   filtersOrder: string[];
 }
 
@@ -401,18 +395,17 @@ interface TransformedFlight {
     airport: string;
     airportName: string;
     city: string;
-    time: string; // "HH:MM" format
-    date: string; // "YYYY-MM-DD" format
+    time: string;
+    date: string;
   };
-  duration: string; // Formatted string like "2h 15m"
+  duration: string;
   durationMinutes: number;
   price: Price;
-  priceValue: number; // Numeric value for sorting/filtering
+  priceValue: number;
   stops: number;
   aircraft: string;
   cabinClass: string;
-  baggage: Record<string, any>; // Still Record<string, any> as structure not fully clear from snippet
-  amenities: Amenity[]; // Now typed
+  baggage: string[];
 }
 
 interface SearchParams {
@@ -440,7 +433,8 @@ interface AirportOption {
 }
 
 export default function FlightSearchPage() {
-  const [flights, setFlights] = useState<TransformedFlight[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [flights, setFlights] = useState<TransformedFlight[] | any[]>([]);
   const [aggregation, setAggregation] = useState<Aggregation | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -468,7 +462,7 @@ export default function FlightSearchPage() {
   // Price formatting helper
   const formatPrice = (price: Price): string => {
     if (!price) return "N/A";
-    const total = price.units + price.nanos / 1_000_000_000; // Use 1_000_000_000 for nanos
+    const total = price.units + price.nanos / 1_000_000_000;
     return `${price.currencyCode} ${total.toFixed(2)}`;
   };
 
@@ -479,18 +473,15 @@ export default function FlightSearchPage() {
     return `${hours}h ${mins}m`;
   };
 
-  // Transform API response to our flight format
-  const transformFlightData = (
-    apiData: ApiResponseData
-  ): TransformedFlight[] => {
+  // Transform API response to the flight format
+  const transformFlightData = (apiData: ApiResponseData) => {
     if (!apiData?.flightOffers) return [];
 
     return apiData.flightOffers.map((flight, index) => {
-      // Use optional chaining and nullish coalescing for safety
       const segment = flight.segments?.[0];
       const firstLeg = segment?.legs?.[0];
       const lastSegment = flight.segments?.[flight.segments.length - 1];
-      const lastLeg = lastSegment?.legs?.[0]; // Assuming last leg for arrival info
+      const lastLeg = lastSegment?.legs?.[0];
 
       return {
         id: flight.token || `flight-${index}`,
@@ -498,7 +489,7 @@ export default function FlightSearchPage() {
         airline: {
           name: firstLeg?.carriersData?.[0]?.name || "Unknown Airline",
           code: firstLeg?.carriersData?.[0]?.code || "XX",
-          logoUrl: firstLeg?.carriersData?.[0]?.logo || undefined // logo vs logoUrl in API
+          logoUrl: firstLeg?.carriersData?.[0]?.logo || undefined
         },
         flightNumber: `${
           firstLeg?.flightInfo?.carrierInfo?.marketingCarrier || "XX"
@@ -547,9 +538,9 @@ export default function FlightSearchPage() {
             flight.priceBreakdown.total.nanos / 1_000_000_000
           : 0,
         stops: flight.segments ? flight.segments.length - 1 : 0,
-        aircraft: firstLeg?.flightInfo?.planeType || "N/A", // Assuming aircraft is on leg
+        aircraft: firstLeg?.flightInfo?.planeType || "N/A",
         cabinClass: flight.cabinClass || "Economy",
-        baggage: flight.baggage || {}, // Still Record<string, any>
+        baggage: flight.baggage || {},
         amenities: flight.amenities || []
       };
     });
@@ -622,6 +613,7 @@ export default function FlightSearchPage() {
 
   useEffect(() => {
     searchFlights();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAddToItinerary = (flight: TransformedFlight) => {
@@ -778,7 +770,9 @@ export default function FlightSearchPage() {
                 />
                 <div className="ml-2 flex items-center flex-1">
                   {airline.logo && (
-                    <img
+                    <Image
+                      width={300}
+                      height={300}
                       src={airline.logo}
                       alt={airline.name}
                       className="w-4 h-4 mr-2"
@@ -1061,7 +1055,9 @@ export default function FlightSearchPage() {
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center space-x-3">
                             {flight.airline.logoUrl && (
-                              <img
+                              <Image
+                                width={300}
+                                height={300}
                                 src={flight.airline.logoUrl}
                                 alt={flight.airline.name}
                                 className="w-6 h-6"
