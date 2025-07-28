@@ -2,7 +2,7 @@
 
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
-import { ItineraryOverview } from "./components/ItineraryOverview";
+// import { ItineraryOverview } from "./components/ItineraryOverview";
 import { TripItemsList } from "./components/TripItemsList";
 import HeaderBanner from "./components/HeaderBanner";
 
@@ -27,7 +27,7 @@ export default function ItineraryPage() {
           <div className="min-h-screen bg-gray-50 pb-10">
             <HeaderBanner />
           </div>
-          <ItineraryOverview />
+          {/* <ItineraryOverview /> */}
 
           {/* Trip Items List */}
           <div className="mt-8">
