@@ -5,43 +5,45 @@ import Image from "next/image";
 import {
   MapPin,
   Star,
-  Clock,
-  ChevronLeft,
+  Bed,
   ChevronRight,
+  X,
+  ChevronLeft,
   Plus,
   Check,
   Heart,
-  Share2
+  Share2,
+  Calendar
 } from "lucide-react";
-import {
-  Activity,
-  ActivitiesCardProps,
-  CategoryIcon
-} from "../../../lib/interface";
+import { Hotel, HotelCardProps, FacilityIcon } from "../../../lib/interface";
 
-const ActivityCard: React.FC<ActivitiesCardProps> = ({
-  activity = {
-    name: "The Museum of Modern Art",
-    description:
-      "Works from Van Gogh to Warhol & beyond plus a sculpture garden, 2 cafes & 1 The modern restaurant",
-    images: [
-      "https://images.unsplash.com/photo-1554907984-15263bfd63bd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-    ],
-    rating: 4.5,
+const HotelPageCard: React.FC<HotelCardProps> = ({
+  hotel = {
+    id: "default-hotel-1",
+    name: "Riviera Resort, Lekki",
+    address:
+      "18, Kenneth Agbakuru Street, Off Access Bank Admiralty Way, Lekki Phase1",
+    rating: 8.5,
     reviews: 436,
-    duration: "1 Hour",
-    price: 123450.0,
-    time: "10:30 AM on Mar 19",
-    included: "Admission to the Empire State Building",
-    dayNumber: 1,
-    category: "Museums"
+    roomType: "King size room",
+    facilities: ["Pool", "Bar"],
+    images: [
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+    ],
+    price: 123450,
+    totalPrice: 560000,
+    nights: 10,
+    rooms: 1,
+    checkIn: "20-04-2024",
+    checkOut: "29-04-2024"
   },
-  onDirections,
-  onActivityDetails,
+  onClose,
+  onShowMap,
+  onHotelDetails,
   onPriceDetails,
   onEditDetails,
-  onSeeMore,
   onAddToItinerary,
   isAddedToItinerary = false,
   viewMode = "grid"
@@ -51,21 +53,18 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
 
   const nextImage = (): void => {
     setCurrentImageIndex((prev) =>
-      prev === activity.images.length - 1 ? 0 : prev + 1
+      prev === hotel.images.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevImage = (): void => {
     setCurrentImageIndex((prev) =>
-      prev === 0 ? activity.images.length - 1 : prev - 1
+      prev === 0 ? hotel.images.length - 1 : prev - 1
     );
   };
 
   const formatPrice = (price: number): string => {
-    return `₦ ${price.toLocaleString("en-NG", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })}`;
+    return `₦ ${price.toLocaleString()}`;
   };
 
   if (viewMode === "list") {
@@ -74,10 +73,10 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
         <div className="flex flex-col md:flex-row">
           <div className="relative w-full md:w-80 h-48 md:h-auto flex-shrink-0">
             <Image
-              height={300}
               width={300}
-              src={activity.images[currentImageIndex]}
-              alt={activity.name}
+              height={300}
+              src={hotel.images[currentImageIndex]}
+              alt={hotel.name}
               className="w-full h-full object-cover"
               onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                 e.currentTarget.src =
@@ -102,7 +101,7 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
               </button>
             </div>
 
-            {activity.images.length > 1 && (
+            {hotel.images.length > 1 && (
               <>
                 <button
                   onClick={prevImage}
@@ -118,7 +117,7 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
                 </button>
 
                 <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
-                  {activity.images.map((_, index: number) => (
+                  {hotel.images.map((_, index) => (
                     <div
                       key={index}
                       className={`w-2 h-2 rounded-full transition-colors ${
@@ -129,12 +128,6 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
                 </div>
               </>
             )}
-
-            <div className="absolute bottom-3 left-3">
-              <span className="bg-white/90 text-gray-800 px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-                {activity.category}
-              </span>
-            </div>
           </div>
 
           <div className="flex-1 p-6">
@@ -142,66 +135,82 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
               <div className="flex-1 pr-6">
                 <div className="flex items-start justify-between mb-2">
                   <h2 className="text-xl font-semibold text-gray-900 leading-tight">
-                    {activity.name}
+                    {hotel.name}
                   </h2>
                 </div>
 
                 <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-2">
-                  {activity.description}
+                  {hotel.address}
                 </p>
 
                 <div className="flex items-center gap-4 mb-3">
                   <button
-                    onClick={onDirections}
-                    className="flex items-center text-blue-500 hover:text-blue-600 text-sm font-medium transition-colors"
+                    onClick={onShowMap}
+                    className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
                   >
                     <MapPin className="w-4 h-4 mr-1" />
-                    Directions
+                    Show in map
                   </button>
 
                   <div className="flex items-center text-sm">
                     <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
                     <span className="font-medium text-gray-900">
-                      {activity.rating}
+                      {hotel.rating}
                     </span>
                     <span className="text-gray-500 ml-1">
-                      ({activity.reviews})
+                      ({hotel.reviews})
                     </span>
                   </div>
 
                   <div className="flex items-center text-sm text-gray-600">
-                    <Clock className="w-4 h-4 mr-1" />
-                    <span>{activity.duration}</span>
+                    <Bed className="w-4 h-4 mr-1" />
+                    <span>{hotel.roomType}</span>
                   </div>
                 </div>
 
                 <div className="mb-4">
-                  <div className="flex items-start text-sm text-gray-600">
-                    <span className="font-medium mr-2 text-gray-500">
-                      What&apos;s included:
-                    </span>
-                    <div className="flex-1">
-                      <span className="text-blue-500">{activity.included}</span>
-                      <button
-                        onClick={onSeeMore}
-                        className="text-blue-500 hover:text-blue-600 ml-2 font-medium transition-colors"
-                      >
-                        See more
-                      </button>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <span className="font-medium mr-2">Facilities:</span>
+                    <div className="flex items-center space-x-4">
+                      {hotel.facilities.slice(0, 2).map((facility, index) => {
+                        const Icon = FacilityIcon[facility];
+                        return Icon ? (
+                          <div key={index} className="flex items-center">
+                            <Icon className="w-4 h-4 mr-1" />
+                            <span>{facility}</span>
+                          </div>
+                        ) : null;
+                      })}
+                      {hotel.facilities.length > 2 && (
+                        <span className="text-gray-500 text-xs">
+                          +{hotel.facilities.length - 2} more
+                        </span>
+                      )}
                     </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    <span>Check In: {hotel.checkIn}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    <span>Check Out: {hotel.checkOut}</span>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-4">
                   <button
-                    onClick={onActivityDetails}
-                    className="text-blue-500 hover:text-blue-600 font-medium text-sm transition-colors"
+                    onClick={onHotelDetails}
+                    className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
                   >
-                    Activity details
+                    Hotel details
                   </button>
                   <button
                     onClick={onPriceDetails}
-                    className="text-blue-500 hover:text-blue-600 font-medium text-sm transition-colors"
+                    className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
                   >
                     Price details
                   </button>
@@ -210,16 +219,18 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
 
               <div className="text-right flex-shrink-0">
                 <div className="text-2xl font-bold text-gray-900 mb-1">
-                  {formatPrice(activity.price)}
+                  {formatPrice(hotel.price)}
                 </div>
                 <div className="text-sm text-gray-500 mb-1">
-                  {activity.time}
+                  Total Price: NGN {hotel.totalPrice.toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-500 mb-4">Per person</div>
+                <div className="text-sm text-gray-500 mb-4">
+                  {hotel.rooms} room x {hotel.nights} nights incl. taxes
+                </div>
 
                 {onAddToItinerary && (
                   <button
-                    onClick={() => onAddToItinerary(activity)}
+                    onClick={() => onAddToItinerary(hotel)}
                     disabled={isAddedToItinerary}
                     className={`w-full px-4 py-2 rounded-lg font-medium text-sm transition-all mb-3 ${
                       isAddedToItinerary
@@ -243,7 +254,7 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
 
                 <button
                   onClick={onEditDetails}
-                  className="text-blue-500 hover:text-blue-600 font-medium text-sm transition-colors"
+                  className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
                 >
                   Edit details
                 </button>
@@ -261,8 +272,8 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
         <Image
           height={300}
           width={300}
-          src={activity.images[currentImageIndex]}
-          alt={activity.name}
+          src={hotel.images[currentImageIndex]}
+          alt={hotel.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
             e.currentTarget.src =
@@ -287,7 +298,7 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
           </button>
         </div>
 
-        {activity.images.length > 1 && (
+        {hotel.images.length > 1 && (
           <>
             <button
               onClick={prevImage}
@@ -303,7 +314,7 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
             </button>
 
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
-              {activity.images.map((_, index) => (
+              {hotel.images.map((_, index) => (
                 <div
                   key={index}
                   className={`w-2 h-2 rounded-full transition-colors ${
@@ -314,53 +325,63 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
             </div>
           </>
         )}
-
-        <div className="absolute bottom-3 left-3">
-          <span className="bg-white/90 text-gray-800 px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-            {activity.category}
-          </span>
-        </div>
       </div>
 
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">
-          {activity.name}
+          {hotel.name}
         </h3>
 
         <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-          {activity.description}
+          {hotel.address}
         </p>
 
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center text-sm">
             <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-            <span className="font-medium text-gray-900">{activity.rating}</span>
-            <span className="text-gray-500 ml-1">({activity.reviews})</span>
+            <span className="font-medium text-gray-900">{hotel.rating}</span>
+            <span className="text-gray-500 ml-1">({hotel.reviews})</span>
           </div>
           <div className="flex items-center text-sm text-gray-600">
-            <Clock className="w-4 h-4 mr-1" />
-            <span>{activity.duration}</span>
+            <Bed className="w-4 h-4 mr-1" />
+            <span>{hotel.roomType}</span>
           </div>
         </div>
 
         <div className="mb-4">
-          <p className="text-xs text-gray-500 mb-1">What&apos;s included:</p>
-          <p className="text-sm text-blue-500 line-clamp-1">
-            {activity.included}
-          </p>
+          <p className="text-xs text-gray-500 mb-1">Facilities:</p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            {hotel.facilities.slice(0, 3).map((facility, index) => {
+              const Icon = FacilityIcon[facility];
+              return Icon ? (
+                <div
+                  key={index}
+                  className="flex items-center text-sm text-gray-600"
+                >
+                  <Icon className="w-4 h-4 mr-1" />
+                  <span>{facility}</span>
+                </div>
+              ) : null;
+            })}
+            {hotel.facilities.length > 3 && (
+              <span className="text-gray-500 text-xs">
+                +{hotel.facilities.length - 3} more
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex items-end justify-between">
           <div>
             <div className="text-xl font-bold text-gray-900">
-              {formatPrice(activity.price)}
+              {formatPrice(hotel.price)}
             </div>
-            <div className="text-xs text-gray-500">Per person</div>
+            <div className="text-xs text-gray-500">Per night</div>
           </div>
 
           {onAddToItinerary && (
             <button
-              onClick={() => onAddToItinerary(activity)}
+              onClick={() => onAddToItinerary(hotel)}
               disabled={isAddedToItinerary}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
                 isAddedToItinerary
@@ -381,4 +402,4 @@ const ActivityCard: React.FC<ActivitiesCardProps> = ({
   );
 };
 
-export default ActivityCard;
+export default HotelPageCard;

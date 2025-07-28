@@ -573,8 +573,6 @@ export default function FlightSearchPage() {
 
       const result: ApiResponse = await response.json();
 
-      console.log("API Response:", result);
-
       if (result.status && result.data) {
         const transformedFlights = transformFlightData(result.data);
         setFlights(transformedFlights);

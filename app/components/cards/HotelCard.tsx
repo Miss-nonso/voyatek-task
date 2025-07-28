@@ -39,7 +39,7 @@ interface HotelCardProps {
   onEditDetails: () => void;
 }
 
-const HotelCard: React.FC<HotelCardProps> = ({
+export const HotelCard: React.FC<HotelCardProps> = ({
   hotel = {
     name: "Riviera Resort, Lekki",
     address:
@@ -85,7 +85,7 @@ const HotelCard: React.FC<HotelCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden my-6 shadow-sm max-w-full">
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden my-6 shadow-sm w-full">
       <div className="flex flex-col lg:flex-row">
         <div className="relative w-full lg:w-80 h-64 lg:h-auto flex-shrink-0">
           <Image

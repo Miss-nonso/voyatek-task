@@ -1,475 +1,71 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MapPin,
   Star,
   Clock,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  Eye, // Not used in provided snippet, but keeping for completeness if intended
-  MoreHorizontal, // Not used in provided snippet, but keeping for completeness if intended
   Search,
   Filter,
-  SlidersHorizontal, // Not used in provided snippet, but keeping for completeness if intended
   Grid3X3,
   List,
-  Plus,
-  Check,
   Calendar,
-  Tag, // Not used in provided snippet, but keeping for completeness if intended
-  Heart,
-  Share2,
-  ChevronDown, // Not used in provided snippet, but keeping for completeness if intended
+  ChevronRight,
   Compass,
-  Camera,
-  Mountain, // Not used in provided snippet, but keeping for completeness if intended
   Building,
   Utensils,
+  Camera,
   Music,
-  ShoppingBag, // Not used in provided snippet, but keeping for completeness if intended
   Waves
 } from "lucide-react";
+import ActivityCard from "../components/cards/ActivityCard";
+import {
+  Activity,
+  CategoryOption,
+  FiltersState,
+  CategoryIcon
+} from "../../lib/interface";
 
-// Define the Activity interface based on your sample data
-interface Activity {
-  id: number;
-  name: string;
-  description: string;
-  category: string;
-  images: string[];
-  rating: number;
-  reviews: number;
-  duration: string;
-  price: number;
-  time: string;
-  included: string;
-  dayNumber: number;
-}
-
-// Define the props for the ActivitiesCard component
-interface ActivitiesCardProps {
-  activity: Activity;
-  onClose?: () => void; // Optional if not always used
-  onDirections: () => void;
-  onActivityDetails: () => void;
-  onPriceDetails: () => void;
-  onEditDetails: () => void;
-  onSeeMore: () => void;
-  onAddToItinerary: (activity: Activity) => void;
-  isAddedToItinerary?: boolean;
-  viewMode?: "grid" | "list";
-}
-
-// Define the interface for category objects
-interface CategoryOption {
-  name: string;
-  label: string;
-  icon: React.ElementType; // Type for LucideReact icons
-}
-
-// Define the interface for filters state
-interface FiltersState {
-  priceRange: [number, number];
-  rating: number;
-  duration: string;
-  category: string;
-}
-
-// Enhanced ActivitiesCard component
-const ActivitiesCard: React.FC<ActivitiesCardProps> = ({
-  activity,
-  onClose, // Kept as optional, but if used, ensure it's called
-  onDirections,
-  onActivityDetails,
-  onPriceDetails,
-  onEditDetails,
-  onSeeMore,
-  onAddToItinerary,
-  isAddedToItinerary = false,
-  viewMode = "grid"
-}) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
-  const [isLiked, setIsLiked] = useState<boolean>(false);
-
-  const nextImage = (): void => {
-    setCurrentImageIndex((prev) =>
-      prev === activity.images.length - 1 ? 0 : prev + 1
-    );
-  };
-
-  const prevImage = (): void => {
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? activity.images.length - 1 : prev - 1
-    );
-  };
-
-  const formatPrice = (price: number): string => {
-    return `₦ ${price.toLocaleString("en-NG", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })}`;
-  };
-
-  if (viewMode === "list") {
-    return (
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 mb-4">
-        <div className="flex flex-col md:flex-row">
-          {/* Image Section */}
-          <div className="relative w-full md:w-80 h-48 md:h-auto flex-shrink-0">
-            <img
-              src={activity.images[currentImageIndex]}
-              alt={activity.name}
-              className="w-full h-full object-cover"
-              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                // Optional: Provide a fallback image or hide broken image
-                e.currentTarget.src =
-                  "https://placehold.co/400x250/E0E0E0/666666?text=Image+Not+Found";
-                e.currentTarget.onerror = null; // Prevent infinite loop
-              }}
-            />
-
-            {/* Heart and Share buttons */}
-            <div className="absolute top-3 right-3 flex space-x-2">
-              <button
-                onClick={() => setIsLiked(!isLiked)}
-                className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all ${
-                  isLiked
-                    ? "bg-red-500 text-white"
-                    : "bg-white/90 text-gray-600 hover:bg-white"
-                }`}
-              >
-                <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-              </button>
-              <button className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-colors">
-                <Share2 className="w-4 h-4 text-gray-600" />
-              </button>
-            </div>
-
-            {/* Image Navigation */}
-            {activity.images.length > 1 && (
-              <>
-                <button
-                  onClick={prevImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4 text-gray-600" />
-                </button>
-                <button
-                  onClick={nextImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4 text-gray-600" />
-                </button>
-
-                {/* Image Indicators */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
-                  {activity.images.map((_, index) => (
-                    <div
-                      key={index}
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        index === currentImageIndex ? "bg-white" : "bg-white/50"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-
-            {/* Category Badge */}
-            <div className="absolute bottom-3 left-3">
-              <span className="bg-white/90 text-gray-800 px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-                {activity.category}
-              </span>
-            </div>
-          </div>
-
-          {/* Content Section */}
-          <div className="flex-1 p-6">
-            <div className="flex justify-between items-start">
-              {/* Left Content */}
-              <div className="flex-1 pr-6">
-                {/* Header */}
-                <div className="flex items-start justify-between mb-2">
-                  <h2 className="text-xl font-semibold text-gray-900 leading-tight">
-                    {activity.name}
-                  </h2>
-                </div>
-
-                {/* Description */}
-                <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-2">
-                  {activity.description}
-                </p>
-
-                {/* Rating, Duration, and Directions */}
-                <div className="flex items-center gap-4 mb-3">
-                  <button
-                    onClick={onDirections}
-                    className="flex items-center text-blue-500 hover:text-blue-600 text-sm font-medium transition-colors"
-                  >
-                    <MapPin className="w-4 h-4 mr-1" />
-                    Directions
-                  </button>
-
-                  <div className="flex items-center text-sm">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                    <span className="font-medium text-gray-900">
-                      {activity.rating}
-                    </span>
-                    <span className="text-gray-500 ml-1">
-                      ({activity.reviews})
-                    </span>
-                  </div>
-
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Clock className="w-4 h-4 mr-1" />
-                    <span>{activity.duration}</span>
-                  </div>
-                </div>
-
-                {/* What's Included */}
-                <div className="mb-4">
-                  <div className="flex items-start text-sm text-gray-600">
-                    <span className="font-medium mr-2 text-gray-500">
-                      What&apos;s included:
-                    </span>
-                    <div className="flex-1">
-                      <span className="text-blue-500">{activity.included}</span>
-                      <button
-                        onClick={onSeeMore}
-                        className="text-blue-500 hover:text-blue-600 ml-2 font-medium transition-colors"
-                      >
-                        See more
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-4">
-                  <button
-                    onClick={onActivityDetails}
-                    className="text-blue-500 hover:text-blue-600 font-medium text-sm transition-colors"
-                  >
-                    Activity details
-                  </button>
-                  <button
-                    onClick={onPriceDetails}
-                    className="text-blue-500 hover:text-blue-600 font-medium text-sm transition-colors"
-                  >
-                    Price details
-                  </button>
-                </div>
-              </div>
-
-              {/* Right Content - Price Section */}
-              <div className="text-right flex-shrink-0">
-                <div className="text-2xl font-bold text-gray-900 mb-1">
-                  {formatPrice(activity.price)}
-                </div>
-                <div className="text-sm text-gray-500 mb-1">
-                  {activity.time}
-                </div>
-                <div className="text-sm text-gray-500 mb-4">Per person</div>
-
-                <button
-                  onClick={() => onAddToItinerary(activity)}
-                  disabled={isAddedToItinerary}
-                  className={`w-full px-4 py-2 rounded-lg font-medium text-sm transition-all mb-3 ${
-                    isAddedToItinerary
-                      ? "bg-green-100 text-green-700 cursor-not-allowed"
-                      : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md"
-                  }`}
-                >
-                  {isAddedToItinerary ? (
-                    <span className="flex items-center justify-center">
-                      <Check className="w-4 h-4 mr-1" />
-                      Added to Itinerary
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center">
-                      <Plus className="w-4 h-4 mr-1" />
-                      Add to Itinerary
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  onClick={onEditDetails}
-                  className="text-blue-500 hover:text-blue-600 font-medium text-sm transition-colors"
-                >
-                  Edit details
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Grid view (default)
-  return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group">
-      {/* Image Section */}
-      <div className="relative h-48 overflow-hidden">
-        <img
-          src={activity.images[currentImageIndex]}
-          alt={activity.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-            e.currentTarget.src =
-              "https://placehold.co/400x250/E0E0E0/666666?text=Image+Not+Found";
-            e.currentTarget.onerror = null;
-          }}
-        />
-
-        {/* Heart and Share buttons */}
-        <div className="absolute top-3 right-3 flex space-x-2">
-          <button
-            onClick={() => setIsLiked(!isLiked)}
-            className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all ${
-              isLiked
-                ? "bg-red-500 text-white"
-                : "bg-white/90 text-gray-600 hover:bg-white"
-            }`}
-          >
-            <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-          </button>
-          <button className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-colors">
-            <Share2 className="w-4 h-4 text-gray-600" />
-          </button>
-        </div>
-
-        {/* Image Navigation */}
-        {activity.images.length > 1 && (
-          <>
-            <button
-              onClick={prevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-colors opacity-0 group-hover:opacity-100"
-            >
-              <ChevronLeft className="w-4 h-4 text-gray-600" />
-            </button>
-            <button
-              onClick={nextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-colors opacity-0 group-hover:opacity-100"
-            >
-              <ChevronRight className="w-4 h-4 text-gray-600" />
-            </button>
-
-            {/* Image Indicators */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
-              {activity.images.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-2 h-2 rounded-full transition-colors ${
-                    index === currentImageIndex ? "bg-white" : "bg-white/50"
-                  }`}
-                />
-              ))}
-            </div>
-          </>
-        )}
-
-        {/* Category Badge */}
-        <div className="absolute bottom-3 left-3">
-          <span className="bg-white/90 text-gray-800 px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-            {activity.category}
-          </span>
-        </div>
-      </div>
-
-      {/* Content Section */}
-      <div className="p-4">
-        {/* Header */}
-        <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">
-          {activity.name}
-        </h3>
-
-        {/* Description */}
-        <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-          {activity.description}
-        </p>
-
-        {/* Rating and Duration */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center text-sm">
-            <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-            <span className="font-medium text-gray-900">{activity.rating}</span>
-            <span className="text-gray-500 ml-1">({activity.reviews})</span>
-          </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <Clock className="w-4 h-4 mr-1" />
-            <span>{activity.duration}</span>
-          </div>
-        </div>
-
-        {/* What's Included */}
-        <div className="mb-4">
-          <p className="text-xs text-gray-500 mb-1">What&apos;s included:</p>
-          <p className="text-sm text-blue-500 line-clamp-1">
-            {activity.included}
-          </p>
-        </div>
-
-        {/* Price and Action */}
-        <div className="flex items-end justify-between">
-          <div>
-            <div className="text-xl font-bold text-gray-900">
-              {formatPrice(activity.price)}
-            </div>
-            <div className="text-xs text-gray-500">Per person</div>
-          </div>
-
-          <button
-            onClick={() => onAddToItinerary(activity)}
-            disabled={isAddedToItinerary}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
-              isAddedToItinerary
-                ? "bg-green-100 text-green-700 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md"
-            }`}
-          >
-            {isAddedToItinerary ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              <Plus className="w-4 h-4" />
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Main Activities Page Component
-const ActivitiesPage = () => {
+const ActivitiesPage: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState<boolean>(false);
-  const [itinerary, setItinerary] = useState<Activity[]>([]);
+  const [itinerary, setItinerary] = useState<Activity[]>(() => {
+    if (typeof window !== "undefined") {
+      const savedItinerary = localStorage.getItem("activityItinerary");
+      try {
+        return savedItinerary ? JSON.parse(savedItinerary) : [];
+      } catch (e) {
+        console.error(
+          "Failed to parse activity itinerary from local storage",
+          e
+        );
+        return [];
+      }
+    }
+    return [];
+  });
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [filters, setFilters] = useState<FiltersState>({
     priceRange: [0, 500000],
     rating: 0,
     duration: "",
-    category: ""
+    category: "",
+    facilities: [""],
+    roomType: ""
   });
 
-  // Sample activities data - Replace with API call
   const sampleActivities: Activity[] = [
     {
-      id: 1,
       name: "The Museum of Modern Art",
       description:
         "Works from Van Gogh to Warhol & beyond plus a sculpture garden, 2 cafes & 1 The modern restaurant",
-      category: "Museums",
       images: [
-        "https://images.unsplash.com/photo-1554907984-15263bfd63bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+        "https://images.unsplash.com/photo-1554907984-15263bfd63bd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
       ],
       rating: 4.5,
       reviews: 436,
@@ -477,17 +73,16 @@ const ActivitiesPage = () => {
       price: 123450.0,
       time: "10:30 AM on Mar 19",
       included: "Admission to the Empire State Building",
-      dayNumber: 1
+      dayNumber: 1,
+      category: "Museums"
     },
     {
-      id: 2,
       name: "Broadway Show Experience",
       description:
         "World-class theatrical performances in the heart of New York's theater district. Premium seating with pre-show dining options.",
-      category: "Entertainment",
       images: [
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1594736797933-d0b22d2d7d53?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1594736797933-d0b22d2d7d53?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
       ],
       rating: 4.8,
       reviews: 892,
@@ -495,79 +90,56 @@ const ActivitiesPage = () => {
       price: 185000.0,
       time: "7:30 PM on Mar 20",
       included: "Orchestra seating & program guide",
-      dayNumber: 2
+      dayNumber: 2,
+      category: "Entertainment"
     },
     {
-      id: 3,
-      name: "Central Park Walking Tour",
+      name: "Central Park Bike Tour",
       description:
-        "Explore NYC's most famous park with a knowledgeable guide. Discover hidden gems, historical landmarks, and beautiful landscapes.",
-      category: "Tours",
+        "Explore the iconic Central Park on a guided bike tour, covering its famous landmarks and hidden gems.",
       images: [
-        "https://images.unsplash.com/photo-1516738901171-8eb4fc13bd20?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-      ],
-      rating: 4.6,
-      reviews: 654,
-      duration: "3 Hours",
-      price: 75000.0,
-      time: "2:00 PM on Mar 21",
-      included: "Professional guide & refreshments",
-      dayNumber: 3
-    },
-    {
-      id: 4,
-      name: "Food & Wine Tasting",
-      description:
-        "Indulge in a curated selection of local cuisine and fine wines. Learn about culinary traditions from expert sommeliers.",
-      category: "Food & Drink",
-      images: [
-        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1528605105345-5344ea20e269?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+        "https://images.unsplash.com/photo-1504934067339-a4176461c28f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
       ],
       rating: 4.7,
-      reviews: 324,
+      reviews: 550,
       duration: "2 Hours",
-      price: 95000.0,
-      time: "6:00 PM on Mar 22",
-      included: "Wine tastings & gourmet appetizers",
-      dayNumber: 4
+      price: 75000.0,
+      time: "9:00 AM on Mar 21",
+      included: "Bike rental, helmet, and tour guide",
+      dayNumber: 3,
+      category: "Tours"
     },
     {
-      id: 5,
-      name: "Architectural Landmarks Tour",
+      name: "Statue of Liberty & Ellis Island Tour",
       description:
-        "Marvel at iconic buildings and architectural marvels. Professional photography opportunities at each landmark.",
-      category: "Architecture",
+        "Visit two of New York's most historic landmarks. Learn about their significance and enjoy breathtaking views of the Manhattan skyline.",
       images: [
-        "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-      ],
-      rating: 4.4,
-      reviews: 567,
-      duration: "4 Hours",
-      price: 135000.0,
-      time: "9:00 AM on Mar 23",
-      included: "Professional guide & photo session",
-      dayNumber: 5
-    },
-    {
-      id: 6,
-      name: "Harbor Cruise & Sunset",
-      description:
-        "Relaxing cruise with stunning city skyline views. Perfect for couples with complimentary champagne service.",
-      category: "Water Activities",
-      images: [
-        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1571406252267-79bb6b69c6d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+        "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
       ],
       rating: 4.9,
-      reviews: 789,
-      duration: "2.5 Hours",
-      price: 165000.0,
-      time: "5:30 PM on Mar 24",
-      included: "Cruise ticket & complimentary drinks",
-      dayNumber: 6
+      reviews: 1200,
+      duration: "4 Hours",
+      price: 95000.0,
+      time: "11:00 AM on Mar 22",
+      included: "Ferry tickets, audio guide, and museum access",
+      dayNumber: 4,
+      category: "Tours"
+    },
+    {
+      name: "Brooklyn Bridge Walking Tour",
+      description:
+        "A guided walk across the iconic Brooklyn Bridge, offering stunning views of Manhattan and Brooklyn.",
+      images: [
+        "https://images.unsplash.com/photo-150322032079-781c7b882e38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+      ],
+      rating: 4.6,
+      reviews: 700,
+      duration: "1.5 Hours",
+      price: 40000.0,
+      time: "3:00 PM on Mar 23",
+      included: "Guided tour",
+      dayNumber: 5,
+      category: "Architecture"
     }
   ];
 
@@ -582,15 +154,20 @@ const ActivitiesPage = () => {
   ];
 
   useEffect(() => {
-    // Simulate API call
     setTimeout(() => {
       setActivities(sampleActivities);
       setLoading(false);
     }, 1000);
   }, []);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("activityItinerary", JSON.stringify(itinerary));
+    }
+  }, [itinerary]);
+
   const handleAddToItinerary = (activity: Activity): void => {
-    if (!itinerary.find((item) => item.id === activity.id)) {
+    if (!itinerary.some((item) => item.name === activity.name)) {
       setItinerary((prevItinerary) => [...prevItinerary, activity]);
     }
   };
@@ -629,7 +206,6 @@ const ActivitiesPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -643,7 +219,6 @@ const ActivitiesPage = () => {
               </p>
             </div>
 
-            {/* Search Bar */}
             <div className="flex-1 max-w-md">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -660,10 +235,9 @@ const ActivitiesPage = () => {
             </div>
           </div>
 
-          {/* Category Filters */}
           <div className="flex flex-wrap gap-2 mt-6 overflow-x-auto pb-2">
             {categories.map((category) => {
-              const IconComponent = category.icon;
+              const IconComponent = CategoryIcon[category.name];
               return (
                 <button
                   key={category.name}
@@ -681,7 +255,6 @@ const ActivitiesPage = () => {
             })}
           </div>
 
-          {/* Controls */}
           <div className="flex items-center justify-between mt-6">
             <div className="flex items-center gap-4">
               <button
@@ -723,9 +296,7 @@ const ActivitiesPage = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Featured Section */}
         {!searchQuery && selectedCategory === "all" && (
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
@@ -733,18 +304,31 @@ const ActivitiesPage = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {activities.slice(0, 3).map((activity) => (
-                <div key={activity.id} className="relative">
-                  <ActivitiesCard
+                <div key={activity.name} className="relative">
+                  <ActivityCard
                     activity={activity}
                     viewMode="grid"
-                    onDirections={() => alert("Directions clicked")}
-                    onActivityDetails={() => alert("Activity details clicked")}
-                    onPriceDetails={() => alert("Price details clicked")}
-                    onEditDetails={() => alert("Edit details clicked")}
-                    onSeeMore={() => alert("See more clicked")}
+                    onDirections={() =>
+                      console.log("Directions clicked for:", activity.name)
+                    }
+                    onActivityDetails={() =>
+                      console.log(
+                        "Activity details clicked for:",
+                        activity.name
+                      )
+                    }
+                    onPriceDetails={() =>
+                      console.log("Price details clicked for:", activity.name)
+                    }
+                    onEditDetails={() =>
+                      console.log("Edit details clicked for:", activity.name)
+                    }
+                    onSeeMore={() =>
+                      console.log("See more clicked for:", activity.name)
+                    }
                     onAddToItinerary={handleAddToItinerary}
                     isAddedToItinerary={itinerary.some(
-                      (item) => item.id === activity.id
+                      (item) => item.name === activity.name
                     )}
                   />
                   <div className="absolute top-4 left-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-2 py-1 rounded-full text-xs font-medium">
@@ -756,7 +340,6 @@ const ActivitiesPage = () => {
           </div>
         )}
 
-        {/* All Activities */}
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             {selectedCategory === "all"
@@ -765,7 +348,6 @@ const ActivitiesPage = () => {
           </h2>
         </div>
 
-        {/* Activities Grid/List */}
         <div
           className={`${
             viewMode === "grid"
@@ -774,18 +356,28 @@ const ActivitiesPage = () => {
           }`}
         >
           {filteredActivities.map((activity) => (
-            <ActivitiesCard
-              key={activity.id}
+            <ActivityCard
+              key={activity.name}
               activity={activity}
               viewMode={viewMode}
-              onDirections={() => alert("Directions clicked")}
-              onActivityDetails={() => alert("Activity details clicked")}
-              onPriceDetails={() => alert("Price details clicked")}
-              onEditDetails={() => alert("Edit details clicked")}
-              onSeeMore={() => alert("See more clicked")}
+              onDirections={() =>
+                console.log("Directions clicked for:", activity.name)
+              }
+              onActivityDetails={() =>
+                console.log("Activity details clicked for:", activity.name)
+              }
+              onPriceDetails={() =>
+                console.log("Price details clicked for:", activity.name)
+              }
+              onEditDetails={() =>
+                console.log("Edit details clicked for:", activity.name)
+              }
+              onSeeMore={() =>
+                console.log("See more clicked for:", activity.name)
+              }
               onAddToItinerary={handleAddToItinerary}
               isAddedToItinerary={itinerary.some(
-                (item) => item.id === activity.id
+                (item) => item.name === activity.name
               )}
             />
           ))}
@@ -808,7 +400,9 @@ const ActivitiesPage = () => {
                   priceRange: [0, 500000],
                   rating: 0,
                   duration: "",
-                  category: ""
+                  category: "",
+                  facilities: [""],
+                  roomType: ""
                 })
               }
               className="text-blue-600 hover:text-blue-700 font-medium"
@@ -819,7 +413,6 @@ const ActivitiesPage = () => {
         )}
       </div>
 
-      {/* Floating Itinerary Counter */}
       {itinerary.length > 0 && (
         <div className="fixed bottom-6 right-6 z-50">
           <div className="bg-blue-600 text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-2 hover:bg-blue-700 transition-colors cursor-pointer">
