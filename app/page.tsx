@@ -24,7 +24,7 @@ export default function ItineraryPage() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6">
           {/* Itinerary Overview Section */}
-          <div className="min-h-screen bg-gray-50 pb-10">
+          <div className="min-h-screen bg-gray-50 pb-6">
             <HeaderBanner />
           </div>
           <ItineraryOverview />
