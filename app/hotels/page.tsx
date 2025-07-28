@@ -453,32 +453,39 @@ interface FiltersState {
   roomType: string;
 }
 
-interface BookingComHotelApiData {
-  hotels: {
-    id: string;
-    name: string;
-    address: string;
-    review_score: number;
-    review_score_word: string;
-    review_nr: number;
-    photos: { url_original: string }[];
-    price_breakdown: {
-      all_inclusive_price: {
+interface BookingComProperty {
+  id: number;
+  name: string;
+  address: string;
+  reviewScore: number;
+  reviewCount: number;
+  photoUrls: string[];
+  priceBreakdown: {
+    grossPrice: {
+      value: number;
+    };
+  };
+  facilities_2: string[];
+  room_type_name?: string;
+}
+
+interface BookingComHotelApiItem {
+  hotel_id: string;
+  property: BookingComProperty;
+  priceBreakdown: {
+    all_inclusive_price: {
+      amount_rounded: string;
+      currency: string;
+      amount_per_night: {
         amount_rounded: string;
         currency: string;
-        amount_per_night: {
-          amount_rounded: string;
-          currency: string;
-        };
       };
     };
-    room_type_name: string;
-    facilities_2: string[]; // Example: ["Parking", "Restaurant", "WiFi"]
-    number_of_rooms?: number;
-    checkin_date?: string;
-    checkout_date?: string;
-  }[];
-  // Add other properties if needed from the API response
+  };
+}
+
+interface BookingComHotelApiData {
+  hotels: BookingComHotelApiItem[];
   search_parameters?: {
     checkin: string;
     checkout: string;
@@ -510,20 +517,22 @@ const HotelsPage = () => {
   });
 
   const transformApiDataToHotel = (
-    apiHotel: BookingComHotelApiData["hotels"][0],
+    apiHotelItem: BookingComHotelApiItem,
     checkIn: string,
     checkOut: string,
     rooms: number
   ): Hotel => {
+    const property = apiHotelItem.property;
+    const priceBreakdown = apiHotelItem.priceBreakdown;
+
     const pricePerNightStr =
-      apiHotel.price_breakdown?.all_inclusive_price?.amount_per_night
-        ?.amount_rounded || "0";
-    const pricePerNight = parseFloat(
-      pricePerNightStr.replace(/[^0-9.-]+/g, "")
-    ); // Remove non-numeric chars for parsing
+      priceBreakdown?.all_inclusive_price?.amount_per_night?.amount_rounded ||
+      "0";
+    const pricePerNight = parseFloat(pricePerNightStr.replace(/[^0-9.]/g, ""));
+
     const totalPriceStr =
-      apiHotel.price_breakdown?.all_inclusive_price?.amount_rounded || "0";
-    const totalPrice = parseFloat(totalPriceStr.replace(/[^0-9.-]+/g, ""));
+      priceBreakdown?.all_inclusive_price?.amount_rounded || "0";
+    const totalPrice = parseFloat(totalPriceStr.replace(/[^0-9.]/g, ""));
 
     const nights = Math.ceil(
       (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
@@ -531,14 +540,14 @@ const HotelsPage = () => {
     );
 
     return {
-      id: apiHotel.id,
-      name: apiHotel.name,
-      address: apiHotel.address,
-      rating: apiHotel.review_score || 0,
-      reviews: apiHotel.review_nr || 0,
-      roomType: apiHotel.room_type_name || "Standard Room",
-      facilities: apiHotel.facilities_2 || [],
-      images: apiHotel.photos?.map((p) => p.url_original) || [],
+      id: apiHotelItem.hotel_id,
+      name: property.name || "Unknown Hotel",
+      address: property.address || "Unknown Address",
+      rating: property.reviewScore || 0,
+      reviews: property.reviewCount || 0,
+      roomType: property.room_type_name || "Standard Room",
+      facilities: property.facilities_2 || [],
+      images: property.photoUrls || [],
       price: pricePerNight,
       totalPrice: totalPrice,
       nights: isNaN(nights) ? 0 : nights,
@@ -574,25 +583,29 @@ const HotelsPage = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const result: BookingComApiResponse = await response.json();
-      console.log(result);
+      console.log({ rawApiResponse: result });
 
       if (result.status && result.data?.hotels) {
-        const transformedHotels = result.data.hotels.map((apiHotel) =>
+        const transformedHotels = result.data.hotels.map((apiHotelItem) =>
           transformApiDataToHotel(
-            apiHotel,
+            apiHotelItem,
             arrivalDate,
             departureDate,
             result.data.search_parameters?.rooms || 1
           )
         );
-        setHotels(transformedHotels);
 
-        const minPrice = Math.min(...transformedHotels.map((h) => h.price));
-        const maxPrice = Math.max(...transformedHotels.map((h) => h.price));
-        setFilters((prev) => ({
-          ...prev,
-          priceRange: [minPrice, maxPrice]
-        }));
+        setHotels(transformedHotels);
+        console.log({ transformedHotels });
+
+        if (transformedHotels.length > 0) {
+          const minPrice = Math.min(...transformedHotels.map((h) => h.price));
+          const maxPrice = Math.max(...transformedHotels.map((h) => h.price));
+          setFilters((prev) => ({
+            ...prev,
+            priceRange: [minPrice, maxPrice]
+          }));
+        }
       } else {
         setHotels([]);
       }
@@ -609,7 +622,7 @@ const HotelsPage = () => {
 
   useEffect(() => {
     getHotels();
-  }, []);
+  }, [searchQuery]);
 
   const handleAddToItinerary = (hotel: Hotel): void => {
     if (!itinerary.some((item) => item.id === hotel.id)) {
@@ -619,20 +632,20 @@ const HotelsPage = () => {
 
   const filteredHotels: Hotel[] = hotels.filter((hotel: Hotel) => {
     const matchesSearch =
-      hotel.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      hotel.address.toLowerCase().includes(searchQuery.toLowerCase());
+      hotel.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      hotel.address?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPrice =
       hotel.price >= filters.priceRange[0] &&
       hotel.price <= filters.priceRange[1];
     const matchesRating = hotel.rating >= filters.rating;
     const matchesFacilities =
       filters.facilities.length === 0 ||
-      filters.facilities.every((facility) =>
+      filters.facilities?.every((facility) =>
         hotel.facilities.includes(facility)
       );
     const matchesRoomType =
       !filters.roomType ||
-      hotel.roomType.toLowerCase().includes(filters.roomType.toLowerCase());
+      hotel.roomType?.toLowerCase().includes(filters.roomType?.toLowerCase());
     return (
       matchesSearch &&
       matchesPrice &&
