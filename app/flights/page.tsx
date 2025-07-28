@@ -249,16 +249,15 @@ interface PriceItem {
   id: string;
   title: string;
   price: Price;
-  items: PriceItem[]; // Nested items
-  scope?: string; // e.g., 'FLIGHT_ADULT'
+  items: PriceItem[];
+  scope?: string;
 }
 
 interface UnifiedPriceBreakdown {
   id: string;
   price: Price;
   items: PriceItem[];
-  addedItems: any[]; // This one is still `any[]` as its structure isn't detailed in the provided JSON.
-  // If you get a specific structure for `addedItems`, we can type it further.
+  addedItems: any[];
 }
 
 interface FlightOfferApi {
@@ -277,11 +276,11 @@ interface FlightOfferApi {
       carrier: { name: string; code: string; logo: string };
       avgPerAdult: Price;
       avgPerChild: Price;
-    }[]; // Now typed
+    }[];
     showPriceStrikethrough: boolean;
   };
-  travellerPrices: TravellerPrice[]; // Now typed
-  priceDisplayRequirements: string[]; // Assuming string[] based on common API patterns
+  travellerPrices: TravellerPrice[];
+  priceDisplayRequirements: string[];
   pointOfSale: string;
   tripType: string;
   posMismatch: PosMismatch; // Now typed
@@ -290,11 +289,11 @@ interface FlightOfferApi {
   extraProducts: ExtraProduct[]; // Now typed
   offerExtras: OfferExtras; // Now typed
   ancillaries: Ancillaries; // Now typed
-  appliedDiscounts: any[]; // Still `any[]` as no structure provided.
+  appliedDiscounts: string[]; // Still `any[]` as no structure provided.
   offerKeyToHighlight: string;
   extraProductDisplayRequirements: string; // Now typed as Record<string, any>
   unifiedPriceBreakdown: UnifiedPriceBreakdown; // Now typed
-  perTravellerPriceDifferences: string; // Still `any[]` as no structure provided.
+  perTravellerPriceDifferences: string[]; // Still `any[]` as no structure provided.
   durationInMinutes?: number;
   cabinClass?: string;
   baggage?: Record<string, any>; // Assuming a generic object if not a specific structure
